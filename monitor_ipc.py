@@ -27,12 +27,10 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 🔑 Acceso Premium")
-    # Entrada de código (tipo password para que no se vea al escribir)
     codigo_input = st.text_input("Ingresa tu código aquí:", type="password")
     
     # --- CONFIGURA AQUÍ TU CÓDIGO MAESTRO ---
     CODIGO_MAESTRO = "CORZO2026" 
-    # ----------------------------------------
     
     es_premium = (codigo_input == CODIGO_MAESTRO)
 
@@ -41,27 +39,35 @@ with st.sidebar:
     elif es_premium:
         st.success("✅ Acceso Premium Activado")
 
-# Diccionario de textos
+# Diccionario de textos (Incluye las NOTAS)
 txt = {
     "Español": {
         "tit": "TERMINAL DE MERCADOS", "compra": "✅ COMPRA", "espera": "❌ ESPERAR", 
         "desc": "Descargar Excel", "creado": "Creado por Corzo Tech",
         "btn_mx": "☕ Regalar un café (Donar)", 
         "btn_usa": "🚀 ACTIVAR PREMIUM ($349 MXN)",
-        "msg_pago": "📧 Tras el pago, envía captura a scorzo84@hotmail.com para recibir tu código.",
+        "msg_pago": "📧 Tras el pago, el código se enviará manualmente a tu correo de PayPal.",
         "advertencia": "⚠️ REVISA TU BANDEJA DE ENTRADA TRAS EL PAGO.",
         "bloqueo_tit": "🛑 ACCESO RESTRINGIDO",
-        "bloqueo_msg": "Este mercado es exclusivo para usuarios Premium. Realiza tu pago abajo para obtener tu código de acceso."
+        "bloqueo_msg": "Este mercado es exclusivo para usuarios Premium. Realiza tu pago abajo para obtener tu código.",
+        "nota_tit": "💡 Guía de Lectura del Panorama General:",
+        "nota_1": "Ranking Dinámico: Esta lista evalúa el valor de mercado. Si una compañía cae, será reemplazada automáticamente.",
+        "nota_2": "Señales Automáticas: Evalúa si el precio está por encima o por debajo de su promedio móvil (EMA).",
+        "nota_3": "Uso Recomendado: Monitor informativo de apoyo para complementar tu estrategia personal."
     },
     "English": {
         "tit": "MARKET TERMINAL", "compra": "✅ BUY", "espera": "❌ WAIT", 
         "desc": "Download Excel", "creado": "Created by Corzo Tech",
         "btn_mx": "☕ Buy me a coffee (Donate)", 
         "btn_usa": "🚀 ACTIVATE PREMIUM ($18 USD)",
-        "msg_pago": "📧 After payment, send a screenshot to scorzo84@hotmail.com to get your code.",
+        "msg_pago": "📧 After payment, the code will be sent manually to your PayPal email.",
         "advertencia": "⚠️ CHECK YOUR INBOX AFTER PAYMENT.",
         "bloqueo_tit": "🛑 RESTRICTED ACCESS",
-        "bloqueo_msg": "This market is exclusive to Premium users. Make your payment below to get your access code."
+        "bloqueo_msg": "This market is exclusive to Premium users. Make your payment below to get your code.",
+        "nota_tit": "💡 Quick Reading Guide:",
+        "nota_1": "Dynamic Ranking: This list evaluates market value. If a company drops, it will be replaced automatically.",
+        "nota_2": "Automatic Signals: Evaluates if the price is above or below its moving average (EMA).",
+        "nota_3": "Usage: Informational monitor to complement your personal strategy."
     }
 }[idioma]
 
@@ -80,12 +86,11 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
     
     st.markdown(f'<div class="header-right"><h1>{textos["tit"]}</h1></div>', unsafe_allow_html=True)
 
-    # --- LÓGICA DE BLOQUEO REAL ---
+    # --- LÓGICA DE BLOQUEO ---
     if mercado != "🇲🇽 México (IPC)" and not acceso_concedido:
         st.error(f"### {textos['bloqueo_tit']}")
         st.info(textos['bloqueo_msg'])
         
-        # Mostrar ÚNICAMENTE el botón de pago
         email_paypal = "scorzo84@hotmail.com"
         precio_usd = "18.00"
         url_pago = (
@@ -100,9 +105,9 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         
         st.link_button(textos['btn_usa'], url=url_pago, type="primary", use_container_width=True)
         st.markdown(f'<p class="warning-box" style="text-align:center;">{textos["msg_pago"]}</p>', unsafe_allow_html=True)
-        return # Detiene la carga de datos
+        return
 
-    # --- CARGA DE DATOS (Solo si es México o tiene Código) ---
+    # --- CARGA DE DATOS ---
     @st.cache_data(ttl=600)
     def obtener_top_10(m_nombre):
         listas = {
@@ -136,7 +141,6 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         df_f = pd.DataFrame(res).sort_values("Señal")
         st.table(df_f.assign(Volumen=lambda d: d['Volumen'].apply(lambda x: f"{x:,.0f}")))
 
-        # --- BOTONES DE ACCIÓN (MÉXICO O PREMIUM YA ACTIVADO) ---
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
             output = BytesIO()
@@ -149,7 +153,7 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
                 url_cafe = f"https://paypal.com&business=scorzo84@hotmail.com&amount=0.00&item_name=Donar_Cafe&currency_code=MXN"
                 st.link_button(textos['btn_mx'], url=url_cafe, use_container_width=True)
             else:
-                st.success("💎 Estás usando la versión Premium")
+                st.success("💎 Versión Premium Activa")
             
         st.markdown(f'<p class="credit-text" style="text-align:center;">🚀 {textos["creado"]}</p>', unsafe_allow_html=True)
 
@@ -165,6 +169,11 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         fig.update_layout(height=450, template="none", xaxis_rangeslider_visible=False, margin=dict(l=0, r=0, t=10, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
+    # --- NOTA INFORMATIVA FINAL REINTEGRADA ---
+    st.markdown("---")
+    st.info(f"**{textos['nota_tit']}**\n\n1. {textos['nota_1']}\n\n2. {textos['nota_2']}\n\n3. {textos['nota_3']}")
+
 # Iniciar
 contenido_dinamico(mercado_sel, estrategia_sel, txt, es_premium)
+
 
