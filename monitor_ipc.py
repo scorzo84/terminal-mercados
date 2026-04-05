@@ -5,8 +5,24 @@ import plotly.graph_objects as go
 import base64
 from io import BytesIO
 
-# 1. Configuración Global
+# 1. Configuración Global (Ocultar Interfaz de Streamlit)
 st.set_page_config(page_title="CorzoNow - Terminal Inteligente", layout="wide")
+
+# CSS para dejar la terminal "Limpia" y Profesional
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stDeployButton {display:none;}
+    .block-container {padding-top: 1rem;}
+    .stApp { background-color: #ffffff !important; }
+    .header-right { display: flex; justify-content: flex-end; align-items: center; padding: 10px 25px; border-bottom: 1px solid #f0f0f0; }
+    .header-right h1 { font-size: 18px; font-weight: 700; color: #4a4a4a; text-transform: uppercase; }
+    .credit-text { margin-top: 20px; font-size: 14px; color: #888; font-weight: 600; font-style: italic; }
+    .warning-box { background-color: #ffcccc; padding: 15px; border-radius: 8px; border: 1px solid #d9534f; margin-top: 10px; }
+    </style>
+    """, unsafe_allow_html=True)
 
 # --- CARGA DE LOGO ---
 @st.cache_data
@@ -18,7 +34,7 @@ def get_logo_base64(path):
 
 logo_html = get_logo_base64("logo.png")
 
-# --- SIDEBAR (CONFIGURACIÓN Y BLOQUEO DE SEGURIDAD) ---
+# --- SIDEBAR (CONFIGURACIÓN Y BLOQUEO) ---
 with st.sidebar:
     st.markdown("### 🕹️ Configuración")
     idioma = st.selectbox("🌐 Idioma", ["Español", "English"])
@@ -29,12 +45,11 @@ with st.sidebar:
     st.markdown("### 🔑 Acceso Premium")
     codigo_input = st.text_input("Ingresa tu código aquí:", type="password")
     
-    # --- SISTEMA DE SECRETOS (PROTECCIÓN ANT-HACKERS) ---
-    # Intenta leer la contraseña desde Streamlit Cloud; si no existe, usa una de respaldo.
+    # SEGURIDAD: Intenta leer de Secrets, si no, usa el default
     try:
         CODIGO_MAESTRO = st.secrets["PASSWORD_PREMIUM"]
     except:
-        CODIGO_MAESTRO = "CORZO2026" # Contraseña temporal si no has configurado los secretos
+        CODIGO_MAESTRO = "CORZO2026" 
     
     es_premium = (codigo_input == CODIGO_MAESTRO)
 
@@ -43,7 +58,7 @@ with st.sidebar:
     elif es_premium:
         st.success("✅ Acceso Premium Activado")
 
-# Diccionario de textos (Incluye NOTAS)
+# Diccionario de textos
 txt = {
     "Español": {
         "tit": "TERMINAL DE MERCADOS", "compra": "✅ COMPRA", "espera": "❌ ESPERAR", 
@@ -55,9 +70,9 @@ txt = {
         "bloqueo_tit": "🛑 ACCESO RESTRINGIDO",
         "bloqueo_msg": "Este mercado es exclusivo para usuarios Premium. Realiza tu pago abajo para obtener tu código.",
         "nota_tit": "💡 Guía de Lectura del Panorama General:",
-        "nota_1": "Ranking Dinámico: Esta lista evalúa el valor de mercado. Si una compañía cae, será reemplazada automáticamente.",
-        "nota_2": "Señales Automáticas: Evalúa si el precio está por encima o por debajo de su promedio móvil (EMA).",
-        "nota_3": "Uso Recomendado: Monitor informativo de apoyo para complementar tu estrategia personal."
+        "nota_1": "Ranking Dinámico: Esta lista evalúa el valor de mercado.",
+        "nota_2": "Señales Automáticas: Precio vs promedio móvil (EMA).",
+        "nota_3": "Uso Recomendado: Monitor informativo de apoyo personal."
     },
     "English": {
         "tit": "MARKET TERMINAL", "compra": "✅ BUY", "espera": "❌ WAIT", 
@@ -69,28 +84,18 @@ txt = {
         "bloqueo_tit": "🛑 RESTRICTED ACCESS",
         "bloqueo_msg": "This market is exclusive to Premium users. Make your payment below to get your code.",
         "nota_tit": "💡 Quick Reading Guide:",
-        "nota_1": "Dynamic Ranking: Based on market value. If a company drops, it's replaced automatically.",
-        "nota_2": "Automatic Signals: Price vs EMA check.",
-        "nota_3": "Usage: Informational monitor to complement your strategy."
+        "nota_1": "Dynamic Ranking: Market value based.",
+        "nota_2": "Signals: Price vs EMA check.",
+        "nota_3": "Usage: Informational monitor for your strategy."
     }
 }[idioma]
 
 # --- BLOQUE DINÁMICO ---
 @st.fragment(run_every=300)
 def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
-    st.markdown("""
-        <style>
-        .stApp { background-color: #ffffff !important; }
-        .header-right { display: flex; justify-content: flex-end; align-items: center; padding: 10px 25px; border-bottom: 1px solid #f0f0f0; }
-        .header-right h1 { font-size: 18px; font-weight: 700; color: #4a4a4a; text-transform: uppercase; }
-        .credit-text { margin-top: 20px; font-size: 14px; color: #888; font-weight: 600; font-style: italic; }
-        .warning-box { background-color: #ffcccc; padding: 15px; border-radius: 8px; border: 1px solid #d9534f; margin-top: 10px; }
-        </style>
-        """, unsafe_allow_html=True)
-    
     st.markdown(f'<div class="header-right"><h1>{textos["tit"]}</h1></div>', unsafe_allow_html=True)
 
-    # --- LÓGICA DE BLOQUEO ---
+    # LÓGICA DE BLOQUEO REAL
     if mercado != "🇲🇽 México (IPC)" and not acceso_concedido:
         st.error(f"### {textos['bloqueo_tit']}")
         st.info(textos['bloqueo_msg'])
@@ -111,7 +116,7 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         st.markdown(f'<p class="warning-box" style="text-align:center;">{textos["msg_pago"]}</p>', unsafe_allow_html=True)
         return
 
-    # --- CARGA DE DATOS ---
+    # CARGA DE DATOS
     @st.cache_data(ttl=600)
     def obtener_top_10(m_nombre):
         listas = {
@@ -150,14 +155,15 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
             output = BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                 df_f.to_excel(writer, index=False)
-            st.download_button(label=f"📥 {textos['desc']}", data=output.getvalue(), file_name="reporte.xlsx", use_container_width=True)
+            if st.download_button(label=f"📥 {textos['desc']}", data=output.getvalue(), file_name="reporte.xlsx", use_container_width=True):
+                st.toast("✅ Excel generado")
         
         with col_btn2:
             if mercado == "🇲🇽 México (IPC)":
                 url_cafe = f"https://paypal.com&business=scorzo84@hotmail.com&amount=0.00&item_name=Donar_Cafe&currency_code=MXN"
                 st.link_button(textos['btn_mx'], url=url_cafe, use_container_width=True)
             else:
-                st.success("💎 Versión Premium Activa")
+                st.success("💎 Premium Activo")
             
         st.markdown(f'<p class="credit-text" style="text-align:center;">🚀 {textos["creado"]}</p>', unsafe_allow_html=True)
 
@@ -173,11 +179,10 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         fig.update_layout(height=450, template="none", xaxis_rangeslider_visible=False, margin=dict(l=0, r=0, t=10, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
-    # --- NOTA INFORMATIVA FINAL ---
     st.markdown("---")
     st.info(f"**{textos['nota_tit']}**\n\n1. {textos['nota_1']}\n\n2. {textos['nota_2']}\n\n3. {textos['nota_3']}")
 
-# Iniciar
+# Iniciar App
 contenido_dinamico(mercado_sel, estrategia_sel, txt, es_premium)
 
 
