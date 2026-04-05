@@ -18,7 +18,7 @@ def get_logo_base64(path):
 
 logo_html = get_logo_base64("logo.png")
 
-# --- SIDEBAR (CONFIGURACIÓN Y BLOQUEO) ---
+# --- SIDEBAR (CONFIGURACIÓN Y BLOQUEO DE SEGURIDAD) ---
 with st.sidebar:
     st.markdown("### 🕹️ Configuración")
     idioma = st.selectbox("🌐 Idioma", ["Español", "English"])
@@ -29,8 +29,12 @@ with st.sidebar:
     st.markdown("### 🔑 Acceso Premium")
     codigo_input = st.text_input("Ingresa tu código aquí:", type="password")
     
-    # --- CONFIGURA AQUÍ TU CÓDIGO MAESTRO ---
-    CODIGO_MAESTRO = "CORZO2026" 
+    # --- SISTEMA DE SECRETOS (PROTECCIÓN ANT-HACKERS) ---
+    # Intenta leer la contraseña desde Streamlit Cloud; si no existe, usa una de respaldo.
+    try:
+        CODIGO_MAESTRO = st.secrets["PASSWORD_PREMIUM"]
+    except:
+        CODIGO_MAESTRO = "CORZO2026" # Contraseña temporal si no has configurado los secretos
     
     es_premium = (codigo_input == CODIGO_MAESTRO)
 
@@ -39,7 +43,7 @@ with st.sidebar:
     elif es_premium:
         st.success("✅ Acceso Premium Activado")
 
-# Diccionario de textos (Incluye las NOTAS)
+# Diccionario de textos (Incluye NOTAS)
 txt = {
     "Español": {
         "tit": "TERMINAL DE MERCADOS", "compra": "✅ COMPRA", "espera": "❌ ESPERAR", 
@@ -65,9 +69,9 @@ txt = {
         "bloqueo_tit": "🛑 RESTRICTED ACCESS",
         "bloqueo_msg": "This market is exclusive to Premium users. Make your payment below to get your code.",
         "nota_tit": "💡 Quick Reading Guide:",
-        "nota_1": "Dynamic Ranking: This list evaluates market value. If a company drops, it will be replaced automatically.",
-        "nota_2": "Automatic Signals: Evaluates if the price is above or below its moving average (EMA).",
-        "nota_3": "Usage: Informational monitor to complement your personal strategy."
+        "nota_1": "Dynamic Ranking: Based on market value. If a company drops, it's replaced automatically.",
+        "nota_2": "Automatic Signals: Price vs EMA check.",
+        "nota_3": "Usage: Informational monitor to complement your strategy."
     }
 }[idioma]
 
@@ -169,11 +173,12 @@ def contenido_dinamico(mercado, estrategia, textos, acceso_concedido):
         fig.update_layout(height=450, template="none", xaxis_rangeslider_visible=False, margin=dict(l=0, r=0, t=10, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
-    # --- NOTA INFORMATIVA FINAL REINTEGRADA ---
+    # --- NOTA INFORMATIVA FINAL ---
     st.markdown("---")
     st.info(f"**{textos['nota_tit']}**\n\n1. {textos['nota_1']}\n\n2. {textos['nota_2']}\n\n3. {textos['nota_3']}")
 
 # Iniciar
 contenido_dinamico(mercado_sel, estrategia_sel, txt, es_premium)
+
 
 
