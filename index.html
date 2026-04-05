@@ -4,33 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CorzoNow - Terminal Inteligente</title>
-    <meta name="description" content="Terminal inteligente de mercados financieros por Corzo Tech.">
+    <!-- Configuración para buscadores -->
+    <meta name="description" content="Accede a la Terminal Inteligente de Corzo Tech para análisis de mercados en tiempo real.">
+    
+    <!-- REDIRECCIÓN INSTANTÁNEA (Evita errores de pantalla gris en móviles) -->
+    <meta http-equiv="refresh" content="0; url=https://streamlit.app">
+    
+    <script type="text/javascript">
+        // Redirección por JavaScript para mayor velocidad
+        window.location.href = "https://streamlit.app";
+    </script>
+
     <style>
-        /* Elimina márgenes y asegura que el iframe ocupe toda la ventana */
-        body, html {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden; /* Evita doble barra de desplazamiento */
             background-color: #ffffff;
+            color: #4a4a4a;
         }
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+        .loader-container {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0077b6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <!-- URL con ?embed=true para ocultar la interfaz de Streamlit -->
-    <iframe 
-        src="https://streamlit.app" 
-        allow="clipboard-read; clipboard-write"
-        allowfullscreen>
-    </iframe>
+    <div class="loader-container">
+        <div class="spinner"></div>
+        <p>Cargando Terminal Inteligente CorzoNow...</p>
+        <p style="font-size: 12px; color: #888;">Si no redirige automáticamente, <a href="https://streamlit.app">haz clic aquí</a>.</p>
+    </div>
 </body>
 </html>
