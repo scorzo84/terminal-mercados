@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CorzoNow - Terminal Inteligente</title>
-    <!-- Esto ayuda al buscador (SEO) -->
     <meta name="description" content="Terminal inteligente de mercados financieros por Corzo Tech.">
-    
     <style>
+        /* Elimina márgenes y asegura que el iframe ocupe toda la ventana */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
-            overflow: hidden; /* Evita doble scroll */
+            overflow: hidden; /* Evita doble barra de desplazamiento */
             background-color: #ffffff;
         }
         iframe {
@@ -27,9 +26,9 @@
     </style>
 </head>
 <body>
-    <!-- REEMPLAZA LA URL DE ABAJO CON TU LINK DE STREAMLIT ACTUAL -->
+    <!-- URL con ?embed=true para ocultar la interfaz de Streamlit -->
     <iframe 
-        src="https://corzonow.streamlit.app?embed=true/" 
+        src="https://streamlit.app" 
         allow="clipboard-read; clipboard-write"
         allowfullscreen>
     </iframe>
