@@ -30,7 +30,7 @@ txt = {
     "Español": {
         "tit": "TERMINAL DE MERCADOS", "compra": "✅ COMPRA", "espera": "❌ ESPERAR", 
         "desc": "Descargar Excel", "creado": "Creado por Corzo Tech",
-        "apoyo": "☕ Apoyar proyecto",
+        "apoyo": "☕ Donar por PayPal",
         "nota_tit": "💡 Guía de Lectura del Panorama General:",
         "nota_1": "Ranking Dinámico: Esta lista evalúa el valor de mercado. Si una compañía cae, será reemplazada automáticamente.",
         "nota_2": "Señales Automáticas: Evalúa si el precio está por encima o por debajo de su promedio móvil (EMA).",
@@ -39,7 +39,7 @@ txt = {
     "English": {
         "tit": "MARKET TERMINAL", "compra": "✅ BUY", "espera": "❌ WAIT", 
         "desc": "Download Excel", "creado": "Created by Corzo Tech",
-        "apoyo": "☕ Support project",
+        "apoyo": "☕ Donate via PayPal",
         "nota_tit": "💡 Quick Reading Guide:",
         "nota_1": "Dynamic Ranking: This list evaluates market value. If a company drops, it will be replaced automatically.",
         "nota_2": "Automatic Signals: Evaluates if the price is above or below its moving average (EMA).",
@@ -55,10 +55,8 @@ def contenido_dinamico(mercado, estrategia, textos):
     st.markdown("""
         <style>
         .stApp { background-color: #ffffff !important; }
-        /* Ocultar elementos innecesarios pero permitir acceso al menú lateral */
         #MainMenu, .stDeployButton {visibility: hidden; display:none;}
         header { background-color: rgba(0,0,0,0) !important; border: none !important; }
-        
         .block-container { padding-top: 1rem !important; }
         .header-right { display: flex; justify-content: flex-end; align-items: center; padding: 10px 25px; border-bottom: 1px solid #f0f0f0; }
         .header-right h1 { font-size: 18px; font-weight: 700; color: #4a4a4a; text-transform: uppercase; }
@@ -69,17 +67,24 @@ def contenido_dinamico(mercado, estrategia, textos):
     @st.cache_data(ttl=600)
     def obtener_top_10(m_nombre):
         listas = {
-            "🇲🇽 México (IPC)": ["AMXB.MX", "WALMEX.MX", "GFNORTEO.MX", "GMEXICOB.MX", "FEMSAUBD.MX", "CEMEXCPO.MX", "GAPB.MX", "ASURB.MX", "AC.MX", "BIMBOA.MX", "GRUMAB.MX", "KOFUBL.MX", "PINFRA.MX", "ORBIA.MX", "ALSEA.MX", "BBAJIOO.MX", "ELEKTRA.MX", "GCC.MX", "GENTERA.MX", "BOLSAA.MX"],
-            "🇺🇸 EE.UU. (Wall Street)": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "BRK-B", "LLY", "AVGO", "V", "JPM", "MA", "UNH", "PG", "COST", "HD", "NFLX", "ABBV", "ADBE"],
-            "🚀 Cripto (USD)": ["BTC-USD", "ETH-USD", "BNB-USD", "SOL-USD", "XRP-USD", "ADA-USD", "DOGE-USD", "TRX-USD", "LINK-USD", "DOT-USD", "MATIC-USD", "AVAX-USD", "SHIB-USD", "LTC-USD", "BCH-USD", "NEAR-USD", "UNI-USD"]
+            "🇲🇽 México (IPC)": ["AMXB.MX", "WALMEX.MX", "GFNORTEO.MX", "GMEXICOB.MX", "FEMSAUBD.MX", "CEMEXCPO.MX", "GAPB.MX", "ASURB.MX", "AC.MX", "BIMBOA.MX"],
+            "🇺🇸 EE.UU. (Wall Street)": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "BRK-B", "LLY", "AVGO"],
+            "🚀 Cripto (USD)": ["BTC-USD", "ETH-USD", "BNB-USD", "SOL-USD", "XRP-USD", "ADA-USD", "DOGE-USD", "TRX-USD", "LINK-USD", "DOT-USD"]
         }
-        info = []
-        for t in listas[m_nombre]:
-            try:
-                m_cap = yf.Ticker(t).info.get('marketCap', 0)
-                info.append({'ticker': t, 'marketCap': m_cap})
-            except: continue
-        return pd.DataFrame(info).sort_values('marketCap', ascending=False).head(10)['ticker'].tolist()
+        try:
+            info = []
+            for t in listas[m_nombre]:
+                ticker_obj = yf.Ticker(t)
+                m_cap = ticker_obj.info.get('marketCap', 0)
+                if m_cap > 0:
+                    info.append({'ticker': t, 'marketCap': m_cap})
+            
+            if len(info) > 0:
+                df_rank = pd.DataFrame(info).sort_values('marketCap', ascending=False)
+                return df_rank['ticker'].tolist()
+            return listas[m_nombre]
+        except:
+            return listas[m_nombre]
 
     @st.cache_data(ttl=300)
     def descargar(tickers):
@@ -118,7 +123,9 @@ def contenido_dinamico(mercado, estrategia, textos):
         with col_btn1:
             st.download_button(label=f"📥 {textos['desc']}", data=output.getvalue(), file_name=f"panorama_{mercado}.xlsx", use_container_width=True)
         with col_btn2:
-            st.link_button(f"{textos['apoyo']}", url="https://buymeacoffee.com", use_container_width=True)
+            # Enlace de PayPal directo usando tu correo
+            link_paypal = f"https://paypal.com"
+            st.link_button(f"{textos['apoyo']}", url=link_paypal, use_container_width=True)
             
         st.markdown(f'<p class="credit-text" style="text-align:center;">🚀 {textos["creado"]}</p>', unsafe_allow_html=True)
 
