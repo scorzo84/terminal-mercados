@@ -25,15 +25,15 @@ with st.sidebar:
     mercado_sel = st.selectbox("Mercado", ["🇲🇽 México (IPC)", "🇺🇸 EE.UU. (Wall Street)", "🚀 Cripto (USD)"])
     estrategia_sel = st.radio("Estrategia", ["Day-Trading", "Swing-Traiding", "Position-Trading"])
 
-# Diccionario de textos ajustado para el comportamiento HÍBRIDO y PAGO
+# Diccionario de textos
 txt = {
     "Español": {
         "tit": "TERMINAL DE MERCADOS", "compra": "✅ COMPRA", "espera": "❌ ESPERAR", 
         "desc": "Descargar Excel", "creado": "Creado por Corzo Tech",
         "btn_mx": "☕ Regalar un café (Donar)", 
-        "btn_usa": "💳 Acceso Premium",
+        "btn_usa": "🚀 ACTIVAR PREMIUM ($349 MXN)",
         "msg_pago": "📧 Tras el pago, recibirás tu código por correo.",
-        "advertencia": "⚠️ Revisa tu bandeja de entrada (y SPAM) tras el pago.",
+        "advertencia": "⚠️ REVISA TU BANDEJA DE ENTRADA TRAS EL PAGO.",
         "nota_tit": "💡 Guía de Lectura:",
         "nota_1": "Ranking Dinámico: Evaluación por valor de mercado.",
         "nota_2": "Señales: Precio vs promedio móvil (EMA).",
@@ -43,9 +43,9 @@ txt = {
         "tit": "MARKET TERMINAL", "compra": "✅ BUY", "espera": "❌ WAIT", 
         "desc": "Download Excel", "creado": "Created by Corzo Tech",
         "btn_mx": "☕ Buy me a coffee (Donate)", 
-        "btn_usa": "💳 Premium Access",
+        "btn_usa": "🚀 ACTIVATE PREMIUM ($18 USD)",
         "msg_pago": "📧 After payment, you'll receive your code via email.",
-        "advertencia": "⚠️ Check your inbox (and SPAM) after payment.",
+        "advertencia": "⚠️ CHECK YOUR INBOX AFTER PAYMENT.",
         "nota_tit": "💡 Quick Guide:",
         "nota_1": "Dynamic Ranking: Market value based.",
         "nota_2": "Signals: Price vs EMA.",
@@ -62,7 +62,7 @@ def contenido_dinamico(mercado, estrategia, textos):
         .header-right { display: flex; justify-content: flex-end; align-items: center; padding: 10px 25px; border-bottom: 1px solid #f0f0f0; }
         .header-right h1 { font-size: 18px; font-weight: 700; color: #4a4a4a; text-transform: uppercase; }
         .credit-text { margin-top: 20px; font-size: 14px; color: #888; font-weight: 600; font-style: italic; }
-        .warning-text { color: #d9534f; font-size: 12px; font-weight: bold; margin-top: 5px; }
+        .warning-box { background-color: #ffcccc; padding: 10px; border-radius: 5px; border: 1px solid #d9534f; margin-top: 10px; }
         </style>
         """, unsafe_allow_html=True)
     
@@ -77,7 +77,7 @@ def contenido_dinamico(mercado, estrategia, textos):
         }
         return listas.get(m_nombre, [])
 
-    with st.spinner('Actualizando datos...'):
+    with st.spinner('Sincronizando mercados...'):
         tickers = obtener_top_10(mercado)
         datos = yf.download(tickers, period="1y", interval="1d", group_by='ticker', progress=False)
 
@@ -108,20 +108,21 @@ def contenido_dinamico(mercado, estrategia, textos):
             output = BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                 df_f.to_excel(writer, index=False, sheet_name='Analisis')
-            if st.download_button(label=f"📥 {textos['desc']}", data=output.getvalue(), file_name="corzonow_analisis.xlsx", use_container_width=True):
-                st.toast("✅ Reporte Excel generado", icon="📊")
+            if st.download_button(label=f"📥 {textos['desc']}", data=output.getvalue(), file_name="corzonow_reporte.xlsx", use_container_width=True):
+                st.toast("✅ Reporte Excel listo", icon="📊")
         
         with col_btn2:
             email_paypal = "scorzo84@hotmail.com"
-            precio_usd = "18.00" # Aprox $349 MXN
+            precio_usd = "18.00" 
             
             if mercado == "🇲🇽 México (IPC)":
                 label_boton = textos['btn_mx']
-                url_final = f"https://paypal.me"
-                msg_footer = "☕ Invita un café para apoyar el proyecto."
+                # Link directo de donación para México
+                url_final = f"https://paypal.com{email_paypal}&amount=0.00&item_name=Donar_Cafe_CorzoNow&currency_code=MXN"
+                msg_footer = "☕ Apoya el proyecto con un café."
             else:
-                label_boton = f"{textos['btn_usa']} ($349 MXN / $18 USD)"
-                # Link con nota al vendedor y nombre de item específico
+                label_boton = textos['btn_usa']
+                # Link corregido con el signo '?' para cobro Premium
                 url_final = (
                     f"https://paypal.com"
                     f"&business={email_paypal}"
@@ -129,14 +130,23 @@ def contenido_dinamico(mercado, estrategia, textos):
                     f"&currency_code=USD"
                     f"&item_name=CORZONOW_PREMIUM_ACCESS_CODE"
                     f"&no_note=0"
-                    f"&cn=Escribe_tu_email_para_enviarte_el_codigo"
+                    f"&cn=ESCRIBE_TU_EMAIL_PARA_ENVIARTE_EL_CODIGO"
                 )
                 msg_footer = textos['msg_pago']
 
             st.link_button(label_boton, url=url_final, use_container_width=True, type="primary")
-            st.caption(f"_{msg_footer}_")
+            
             if mercado != "🇲🇽 México (IPC)":
-                st.markdown(f'<p class="warning-text">{textos["advertencia"]}</p>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="warning-box">
+                        <p style="color: #d9534f; font-size: 13px; font-weight: bold; margin: 0; text-align: center;">
+                            {textos["advertencia"]} <br> 
+                            📧 Envío manual a tu correo tras confirmar pago.
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.caption(f"_{msg_footer}_")
             
         st.markdown(f'<p class="credit-text" style="text-align:center;">🚀 {textos["creado"]}</p>', unsafe_allow_html=True)
 
@@ -157,5 +167,5 @@ def contenido_dinamico(mercado, estrategia, textos):
 
     st.info(f"**{textos['nota_tit']}**\n\n1. {textos['nota_1']}\n\n2. {textos['nota_2']}\n\n3. {textos['nota_3']}")
 
-# Ejecutar terminal
+# Iniciar App
 contenido_dinamico(mercado_sel, estrategia_sel, txt)
