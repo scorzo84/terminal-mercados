@@ -4,42 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CorzoNow - Terminal Inteligente</title>
-    
-    <!-- Configuración para evitar que los móviles bloqueen el contenido -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <style>
-        /* Elimina cualquier espacio blanco y asegura el 100% de la pantalla */
+        /* Ajuste universal para cualquier pantalla */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
-            overflow: hidden;
+            overflow: hidden; /* Evita rebotes de scroll en iPhone */
             background-color: #ffffff;
         }
-        
-        /* El contenedor que "esconde" la dirección real */
-        .iframe-container {
+        .app-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            display: flex;
         }
-
         iframe {
+            flex-grow: 1;
+            border: none;
             width: 100%;
             height: 100%;
-            border: none;
         }
     </style>
 </head>
 <body>
-    <div class="iframe-container">
-        <!-- Usamos ?embed=true para que se vea limpio y profesional -->
+    <div class="app-container">
         <iframe 
             src="https://corzonow.streamlit.app/?embed=true" 
             allow="clipboard-read; clipboard-write"
